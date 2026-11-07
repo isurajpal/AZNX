@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AZNX - Homepage</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            aznx: {
+              light: '#b6d7a8',
+              blue: '#a4c2f4',
+              hover: '#8eb3f0',
+              dark: '#1c4587',
+              border: '#000000'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #a4c2f4;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #8eb3f0;
+    }
+    /* Grid cell border matching wireframe look */
+    .grid-cell-border {
+      border: 1.5px solid #000000;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col font-sans">
+
+  <!-- TOP HEADER / BANNER (Matching image title bar) -->
+  <header class="bg-[#a4c2f4] border-b-2 border-black py-6 px-4 shadow-sm sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="hidden md:block w-32"></div> <!-- Spacer for symmetry on desktop -->
+      
+      <!-- Main Title -->
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-wider text-black text-center cursor-pointer hover:opacity-80 transition-opacity" onclick="resetFilter()">
+        AZNX
+      </h1>
+
+      <!-- Action Buttons Header Right -->
+      <div class="flex items-center gap-3 w-full md:w-auto justify-center">
+        <button onclick="openCreateModal()" class="flex items-center gap-2 bg-black text-white hover:bg-slate-800 font-semibold px-4 py-2.5 rounded-lg border border-black shadow transition-all duration-200 transform hover:-translate-y-0.5">
+          <i class="fa-solid fa-plus text-sm"></i>
+          <span>New Post</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTROL & SEARCH BAR -->
+  <section class="max-w-7xl mx-auto px-4 pt-6 w-full">
+    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+      
+      <!-- Search Box -->
+      <div class="relative w-full md:w-96">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          oninput="handleSearch()"
+          placeholder="Search posts..." 
+          class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a4c2f4] focus:border-black text-sm transition-all"
+        />
+      </div>
+
+      <!-- Stats & Quick Actions -->
+      <div class="flex items-center gap-4 text-sm font-medium text-slate-600 w-full md:w-auto justify-between md:justify-end">
+        <span>Total Items: <strong id="postCount" class="text-black font-bold">48</strong></span>
+        <button onclick="shufflePosts()" class="hover:text-black transition-colors flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-md border border-slate-300">
+          <i class="fa-solid fa-shuffle text-xs"></i>
+          <span>Shuffle</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN POSTS GRID (Exact 4-Column Layout as in wireframe) -->
+  <main class="max-w-7xl mx-auto px-4 py-6 flex-grow w-full">
+    
+    <!-- Grid Container: 4 columns on desktop, 2 on tablet, 1 on mobile -->
+    <div id="postsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <!-- Generated via JS -->
+    </div>
+
+    <!-- Empty State Message -->
+    <div id="emptyState" class="hidden text-center py-16 bg-white rounded-xl border border-dashed border-slate-300 mt-4">
+      <i class="fa-regular fa-folder-open text-4xl text-slate-300 mb-3"></i>
+      <p class="text-slate-500 font-medium">No posts found matching your search query.</p>
+      <button onclick="resetFilter()" class="mt-3 text-sm text-[#1c4587] font-semibold hover:underline">Clear Search</button>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-2">
+      <p>&copy; 2026 AZNX Platform. All rights reserved.</p>
+      <div class="flex gap-4">
+        <a href="#" class="hover:underline">Privacy Policy</a>
+        <a href="#" class="hover:underline">Terms of Service</a>
+        <a href="#" class="hover:underline">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- VIEW POST MODAL -->
+  <div id="viewModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl border-2 border-black overflow-hidden transform transition-all">
+      <!-- Modal Header -->
+      <div class="bg-[#a4c2f4] px-6 py-4 border-b-2 border-black flex items-center justify-between">
+        <h3 id="modalTitle" class="text-2xl font-bold text-black">Post #1</h3>
+        <button onclick="closeViewModal()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-slate-800 flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <!-- Modal Content -->
+      <div class="p-6">
+        <p id="modalBody" class="text-slate-700 text-base leading-relaxed mb-6">
+          Detailed post content goes here...
+        </p>
+        <div id="modalMeta" class="text-xs text-slate-500 border-t border-slate-200 pt-4 flex justify-between">
+          <span>Author: AZNX Team</span>
+          <span id="modalDate">Today</span>
+        </div>
+      </div>
+      <!-- Modal Footer -->
+      <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end gap-2">
+        <button onclick="closeViewModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-black font-semibold rounded-lg text-sm transition-colors">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE NEW POST MODAL -->
+  <div id="createModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl border-2 border-black overflow-hidden transform transition-all">
+      <div class="bg-[#a4c2f4] px-6 py-4 border-b-2 border-black flex items-center justify-between">
+        <h3 class="text-xl font-bold text-black">Create New AZNX Post</h3>
+        <button onclick="closeCreateModal()" class="w-8 h-8 rounded-full bg-black text-white hover:bg-slate-800 flex items-center justify-center transition-colors">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form onsubmit="handleCreatePost(event)" class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Post Title</label>
+          <input type="text" id="newPostTitle" required placeholder="e.g. Post 49 - Update" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a4c2f4] focus:border-black text-sm" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-1">Post Description</label>
+          <textarea id="newPostDesc" rows="4" required placeholder="Write post details here..." class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#a4c2f4] focus:border-black text-sm"></textarea>
+        </div>
+        <div class="flex justify-end gap-3 pt-2">
+          <button type="button" onclick="closeCreateModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-sm transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2 bg-black hover:bg-slate-800 text-white font-semibold rounded-lg text-sm transition-colors shadow">
+            Publish Post
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Initial 48 posts (12 rows of 4 posts = exact layout matching wireframe height)
+    let posts = Array.from({ length: 48 }, (_, i) => ({
+      id: i + 1,
+      title: `Post ${i + 1}`,
+      desc: `This is the detailed body content for Post #${i + 1}. It is displayed cleanly within the AZNX interactive post viewer.`
+    }));
+
+    // Render Posts into 4-Column Wireframe Grid
+    function renderPosts(itemsToRender = posts) {
+      const grid = document.getElementById('postsGrid');
+      const emptyState = document.getElementById('emptyState');
+      const postCount = document.getElementById('postCount');
+
+      grid.innerHTML = '';
+      postCount.textContent = itemsToRender.length;
+
+      if (itemsToRender.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      } else {
+        emptyState.classList.add('hidden');
+      }
+
+      itemsToRender.forEach(post => {
+        const card = document.createElement('div');
+        // Styled to match the exact light blue boxes with crisp dark borders from wireframe
+        card.className = `
+          bg-[#a4c2f4] border-2 border-black rounded-lg py-5 px-4 
+          text-center font-bold text-xl text-slate-900 
+          cursor-pointer transition-all duration-200 
+          hover:bg-[#8eb3f0] hover:scale-[1.02] hover:shadow-md active:scale-95 
+          flex items-center justify-center min-h-[70px] select-none
+        `;
+        card.onclick = () => openViewModal(post);
+        card.setAttribute('aria-label', `View ${post.title}`);
+        card.innerHTML = `<span>${post.title}</span>`;
+        grid.appendChild(card);
+      });
+    }
+
+    // Modal Control Logic
+    function openViewModal(post) {
+      document.getElementById('modalTitle').textContent = post.title;
+      document.getElementById('modalBody').textContent = post.desc;
+      document.getElementById('modalDate').textContent = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('viewModal').classList.remove('hidden');
+    }
+
+    function closeViewModal() {
+      document.getElementById('viewModal').classList.add('hidden');
+    }
+
+    function openCreateModal() {
+      document.getElementById('createModal').classList.remove('hidden');
+    }
+
+    function closeCreateModal() {
+      document.getElementById('createModal').classList.add('hidden');
+      document.getElementById('newPostTitle').value = '';
+      document.getElementById('newPostDesc').value = '';
+    }
+
+    // Add New Post
+    function handleCreatePost(event) {
+      event.preventDefault();
+      const title = document.getElementById('newPostTitle').value;
+      const desc = document.getElementById('newPostDesc').value;
+
+      const newPost = {
+        id: posts.length + 1,
+        title: title,
+        desc: desc
+      };
+
+      posts.unshift(newPost); // Add to beginning
+      renderPosts(posts);
+      closeCreateModal();
+    }
+
+    // Search / Filtering
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = posts.filter(p => p.title.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query));
+      renderPosts(filtered);
+    }
+
+    function resetFilter() {
+      document.getElementById('searchInput').value = '';
+      renderPosts(posts);
+    }
+
+    // Shuffle Posts Function
+    function shufflePosts() {
+      const shuffled = [...posts].sort(() => Math.random() - 0.5);
+      renderPosts(shuffled);
+    }
+
+    // Initialize on Page Load
+    window.onload = function() {
+      renderPosts();
+    };
+  </script>
+</body>
+</html>
